@@ -7,12 +7,15 @@ import { requestNotificationPermission, registerServiceWorker } from "@/lib/util
 
 export default function AlertsPage() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [zipCode, setZipCode] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [radius, setRadius] = useState("25");
   const [selectedRetailers, setSelectedRetailers] = useState<Retailer[]>([
-    "target",
     "walmart",
     "pokemoncenter",
+    "bestbuy",
+    "ebgames",
+    "toysrus",
+    "fourohone",
   ]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>(
     MOCK_PRODUCTS.map((p) => p.id)
@@ -82,14 +85,14 @@ export default function AlertsPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs text-text-secondary block mb-1">
-              Zip Code
+              Postal Code
             </label>
             <input
               type="text"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-              placeholder="Enter zip"
-              maxLength={5}
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+              placeholder="M5V 1J2"
+              maxLength={7}
               className="w-full bg-bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:border-accent"
             />
           </div>
@@ -102,10 +105,10 @@ export default function AlertsPage() {
               onChange={(e) => setRadius(e.target.value)}
               className="w-full bg-bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
             >
-              <option value="10">10 miles</option>
-              <option value="25">25 miles</option>
-              <option value="50">50 miles</option>
-              <option value="100">100 miles</option>
+              <option value="10">10 km</option>
+              <option value="25">25 km</option>
+              <option value="50">50 km</option>
+              <option value="100">100 km</option>
             </select>
           </div>
         </div>

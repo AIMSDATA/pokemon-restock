@@ -83,14 +83,13 @@ function ReportForm({ onClose }: { onClose: () => void }) {
         </div>
         <div>
           <label className="text-xs text-text-secondary block mb-1">
-            Zip Code
+            Postal Code
           </label>
           <input
             type="text"
             required
-            placeholder="90210"
-            maxLength={5}
-            pattern="[0-9]{5}"
+            placeholder="L5B 1H7"
+            maxLength={7}
             className="w-full bg-bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:border-accent"
           />
         </div>
@@ -103,7 +102,7 @@ function ReportForm({ onClose }: { onClose: () => void }) {
         <input
           type="text"
           required
-          placeholder="e.g. Target - Los Angeles, CA"
+          placeholder="e.g. Walmart - Square One, Mississauga"
           className="w-full bg-bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:border-accent"
         />
       </div>

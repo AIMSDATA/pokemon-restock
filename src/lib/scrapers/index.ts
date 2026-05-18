@@ -1,14 +1,16 @@
-import { TargetAdapter } from "./target";
-import { WalmartAdapter } from "./walmart";
+import { WalmartCanadaAdapter } from "./target";
+import { BestBuyCanadaAdapter } from "./walmart";
 import { PokemonCenterAdapter } from "./pokemoncenter";
+import { FourOhOneAdapter } from "./fourohone";
 import { RetailerAdapter, StockCheckResult } from "./types";
 
 export type { StockCheckResult, RetailerAdapter };
 
 const adapters: RetailerAdapter[] = [
-  new TargetAdapter(),
-  new WalmartAdapter(),
+  new WalmartCanadaAdapter(),
+  new BestBuyCanadaAdapter(),
   new PokemonCenterAdapter(),
+  new FourOhOneAdapter(),
 ];
 
 export interface StockMonitorResult {

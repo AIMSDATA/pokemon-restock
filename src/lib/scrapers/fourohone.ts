@@ -1,40 +1,40 @@
 import { RetailerAdapter, StockCheckResult } from "./types";
 
-// Best Buy Canada product IDs
-const BESTBUY_CA_PRODUCTS: Record<string, { sku: string; name: string }> = {
+// 401 Games product slugs (Toronto LGS)
+const FOUROHONE_PRODUCTS: Record<string, { slug: string; name: string }> = {
   "prismatic-evolutions-etb": {
-    sku: "17912345",
+    slug: "pokemon-sv-prismatic-evolutions-elite-trainer-box",
     name: "Prismatic Evolutions Elite Trainer Box",
   },
   "prismatic-evolutions-bbb": {
-    sku: "17912346",
+    slug: "pokemon-sv-prismatic-evolutions-binder-collection",
     name: "Prismatic Evolutions Binder Collection",
   },
   "surging-sparks-bb": {
-    sku: "17912347",
+    slug: "pokemon-sv-surging-sparks-booster-box",
     name: "Surging Sparks Booster Box",
   },
   "destined-rivals-etb": {
-    sku: "17912348",
+    slug: "pokemon-sv-destined-rivals-elite-trainer-box",
     name: "Destined Rivals Elite Trainer Box",
   },
   "journey-together-bb": {
-    sku: "17912349",
+    slug: "pokemon-sv-journey-together-booster-box",
     name: "Journey Together Booster Box",
   },
 };
 
-export class BestBuyCanadaAdapter implements RetailerAdapter {
-  retailer = "bestbuy" as const;
+export class FourOhOneAdapter implements RetailerAdapter {
+  retailer = "fourohone" as const;
 
   async checkStock(productId: string): Promise<StockCheckResult> {
-    const product = BESTBUY_CA_PRODUCTS[productId];
+    const product = FOUROHONE_PRODUCTS[productId];
     if (!product) {
       return this.fallbackResult(productId, productId);
     }
 
     try {
-      const url = `https://www.bestbuy.ca/en-ca/product/${product.sku}`;
+      const url = `https://store.401games.ca/products/${product.slug}`;
       const response = await fetch(url, {
         headers: {
           "User-Agent":
@@ -45,27 +45,29 @@ export class BestBuyCanadaAdapter implements RetailerAdapter {
       });
 
       if (!response.ok) {
-        console.log(`[BestBuy CA] HTTP ${response.status} for ${product.name}`);
+        console.log(`[401 Games] HTTP ${response.status} for ${product.name}`);
         return this.fallbackResult(productId, product.name);
       }
 
       const html = await response.text();
 
+      // 401 Games runs on Shopify
       const isInStock =
-        html.includes("Add to Cart") ||
-        html.includes('"isAvailable":true') ||
-        html.includes('"purchasable":true');
+        html.includes('"available":true') ||
+        html.includes("Add to cart") ||
+        html.includes("Add to Cart");
 
       const isOutOfStock =
+        html.includes('"available":false') ||
         html.includes("Sold out") ||
-        html.includes("Coming soon") ||
-        html.includes('"isAvailable":false');
+        html.includes("sold out");
 
       const isPreorder =
         html.includes("Pre-order") || html.includes("pre-order");
 
-      const priceMatch = html.match(/"priceAmount":\s*(\d+\.?\d*)/);
-      const price = priceMatch ? parseFloat(priceMatch[1]) : null;
+      // Shopify price format
+      const priceMatch = html.match(/"price":\s*(\d+)/);
+      const price = priceMatch ? parseFloat(priceMatch[1]) / 100 : null;
 
       let status: StockCheckResult["status"] = "unknown";
       if (isPreorder) status = "preorder";
@@ -73,7 +75,7 @@ export class BestBuyCanadaAdapter implements RetailerAdapter {
       else if (isOutOfStock) status = "out_of_stock";
 
       return {
-        retailer: "bestbuy",
+        retailer: "fourohone",
         productId,
         productName: product.name,
         status,
@@ -82,14 +84,14 @@ export class BestBuyCanadaAdapter implements RetailerAdapter {
         checkedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error(`[BestBuy CA] Error checking ${product.name}:`, error);
+      console.error(`[401 Games] Error checking ${product.name}:`, error);
       return this.fallbackResult(productId, product.name);
     }
   }
 
   async checkAll(): Promise<StockCheckResult[]> {
     const results: StockCheckResult[] = [];
-    for (const id of Object.keys(BESTBUY_CA_PRODUCTS)) {
+    for (const id of Object.keys(FOUROHONE_PRODUCTS)) {
       results.push(await this.checkStock(id));
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
@@ -98,12 +100,12 @@ export class BestBuyCanadaAdapter implements RetailerAdapter {
 
   private fallbackResult(productId: string, name: string): StockCheckResult {
     return {
-      retailer: "bestbuy",
+      retailer: "fourohone",
       productId,
       productName: name,
       status: "unknown",
       price: null,
-      url: "https://www.bestbuy.ca",
+      url: "https://store.401games.ca",
       checkedAt: new Date().toISOString(),
     };
   }
